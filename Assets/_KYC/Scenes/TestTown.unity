@@ -129,7 +129,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SortingOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2646814440421690666, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_Name
@@ -1944,7 +1944,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SortingOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SpriteSortPoint
@@ -3371,7 +3371,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SortingOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2646814440421690666, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_Name
@@ -6451,7 +6451,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SortingOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2646814440421690666, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_Name
@@ -6824,7 +6824,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SortingOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2646814440421690666, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_Name
@@ -8945,7 +8945,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SortingOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2646814440421690666, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_Name
@@ -9006,7 +9006,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SortingOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2646814440421690666, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_Name
@@ -11143,7 +11143,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SortingOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SpriteSortPoint
@@ -11208,7 +11208,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SortingOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SpriteSortPoint
@@ -11273,7 +11273,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SortingOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1945421250746946809, guid: 6a6420331b3f5f44bbbc4fd8105be982, type: 3}
       propertyPath: m_SpriteSortPoint
