@@ -22,7 +22,7 @@
                     "id": "a79efb1d-96b5-4281-8548-0275aa80da7c",
                     "path": "2DVector",
                     "interactions": "",
-                    "processors": "NormalizeVector2",
+                    "processors": "",
                     "groups": "",
                     "action": "Move",
                     "isComposite": true,
