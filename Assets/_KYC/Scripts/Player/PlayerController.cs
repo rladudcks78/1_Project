@@ -6,6 +6,10 @@ public class PlayerController : MonoBehaviour
     [Header("Data Reference")]
     [SerializeField] private PlayerData statData;
 
+    [Header("Movement Settings")]
+    [Range(0f, 100f)][SerializeField] private float _acceleration = 20f; // 가속도 (높을수록 빠릿함)
+    [Range(0f, 100f)][SerializeField] private float _deceleration = 25f; // 감속도 (멈출 때 속도)
+
     private Rigidbody2D _rb;
     private PlayerInputHandler _input;
 
@@ -14,17 +18,31 @@ public class PlayerController : MonoBehaviour
         _rb = GetComponent<Rigidbody2D>();
         _input = GetComponent<PlayerInputHandler>();
 
-        // 팩트 체크: 톱다운 2D에서 이 설정은 필수입니다. 
-        // 인스펙터에서 수동으로 해도 되지만, 코드로 강제하는 것이 포트폴리오상 안전합니다.
         _rb.gravityScale = 0;
         _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        // 팩트 체크: 물리 연산이 프레임에 독립적이도록 설정
+        _rb.interpolation = RigidbodyInterpolation2D.Interpolate;
     }
 
     private void FixedUpdate()
     {
         if (statData == null || _input == null) return;
 
-        // InputHandler에서 이미 대각선이 필터링된 값을 가져옵니다.
-        _rb.linearVelocity = _input.MovementInput.normalized * statData.moveSpeed;
+        // 1. 목표 속도 결정
+        Vector2 targetVelocity = _input.MovementInput * statData.moveSpeed;
+
+        // 2. 현재 상태에 따라 가속/감속 비율 선택
+        float lerpSpeed = _input.IsMoving ? _acceleration : _deceleration;
+
+        // 3. Lerp를 이용한 선형 보간 이동
+        _rb.linearVelocity = Vector2.Lerp(_rb.linearVelocity, targetVelocity, lerpSpeed * Time.fixedDeltaTime);
+
+        // [핵심] 4. 속도가 충분히 낮아지면 강제로 0으로 고정 (Snap to Zero)
+        // Lerp는 점근선이기 때문에 이 처리가 없으면 애니메이션이 안 멈출 수 있습니다.
+        if (!_input.IsMoving && _rb.linearVelocity.sqrMagnitude < 0.01f)
+        {
+            _rb.linearVelocity = Vector2.zero;
+        }
     }
 }

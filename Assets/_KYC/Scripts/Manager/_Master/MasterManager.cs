@@ -1,49 +1,39 @@
 using UnityEngine;
 
 /// <summary>
-/// 모든 시스템의 중앙 진입점 역할을 하는 마스터 매니저
+/// 서비스 로케이터 패턴의 단순화 버전입니다.
+/// 각 매니저에 접근하는 통로 역할만 수행하며, 로직은 각 매니저가 담당합니다.
 /// </summary>
 public class MasterManager : MonoBehaviour
 {
-    // 외부에서 접근할 때는 MasterManager.Instance.TimeManager 처럼 사용
     public static MasterManager Instance { get; private set; }
 
-    [Header("Sub Managers")]
-    [SerializeField] private TimeManager timeManager;
-    [SerializeField] private DataManager dataManager;
-    [SerializeField] private TileManager tileManager;
-    // 필요한 매니저들을 여기에 계속 추가...
-
-    // 읽기 전용 프로퍼티 (외부 접근용)
-    public TimeManager Time => timeManager;
-    public DataManager Data => dataManager;
-    public TileManager Tile => tileManager;
+    // 하위 매니저들에 대한 참조 (인스펙터에서 할당하거나 Awake에서 GetInChild)
+    [field: SerializeField] public TimeManager Time { get; private set; }
+    [field: SerializeField] public DataManager Data { get; private set; }
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            InitManagers();
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        InitAllManagers();
     }
 
-    private void InitManagers()
+    private void InitAllManagers()
     {
-        // 1. 데이터 로드가 가장 먼저 (세이브 파일 읽기 등)
-        //if (dataManager != null) dataManager.Init();
+        // DataManager 초기화
+        if (Data != null) Data.Initialize();
 
-        // 2. 타일 시스템 초기화
-        //if (tileManager != null) tileManager.Init();
+        // TimeManager 초기화
+        if (Time != null) Time.Initialize();
 
-        // 3. 시간 흐름 시작
-        //if (timeManager != null) timeManager.Init();
-
-        Debug.Log("모든 매니저 초기화 완료");
+        Debug.Log("모든 시스템 가동 준비 완료.");
     }
 }

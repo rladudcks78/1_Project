@@ -1,18 +1,15 @@
 using UnityEngine;
 
-// CreateAssetMenu를 사용하면 유니티 에디터에서 마우스 우클릭만으로 새 작물 데이터를 만들 수 있어.
-[CreateAssetMenu(fileName = "New Crop", menuName = "Farming/Crop Data")]
-public class CropData : ScriptableObject
+[CreateAssetMenu(fileName = "Crop_", menuName = "Farm/Item/Crop")]
+public class CropData : ItemData
 {
-    [Header("기본 정보")]
-    public string cropName;         // 작물 이름
-    public Sprite[] growthSprites;  // 성장 단계별 이미지 (0: 씨앗, 마지막: 수확 직전)
+    [Header("성장 데이터")]
+    public int totalGrowthStages;       // 총 성장 단계 (예: 4단계)
+    public float timePerStage;          // 단계별 성장 시간(분 단위 혹은 게임 내 시간)
+    public Sprite[] growthSprites;      // 단계별 스프라이트 배열
 
-    [Header("성장 설정")]
-    public int daysToGrow;          // 총 성장 기간 (일 단위)
-    public int purchasePrice;       // 씨앗 구매 가격
-    public int sellPrice;           // 수확물 판매 가격
-
-    // 나중에 '비료'나 '계절' 시스템을 넣고 싶다면 여기에 변수만 추가하면 돼. 
-    // 기존 코드를 고칠 필요가 없으니 유지보수에 아주 좋지.
+    [Header("수확 결과")]
+    public ItemData harvestedItem;      // 수확 시 인벤토리에 들어올 아이템
+    public int minHarvestAmount = 1;    // 최소 수확량
+    public int maxHarvestAmount = 3;    // 최대 수확량
 }
