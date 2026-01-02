@@ -1,48 +1,53 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(PlayerInputHandler))]
+[RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
-    [Header("Data Reference")]
     [SerializeField] private PlayerData statData;
 
-    [Header("Movement Settings")]
-    [Range(0f, 100f)][SerializeField] private float _acceleration = 20f; // 가속도 (높을수록 빠릿함)
-    [Range(0f, 100f)][SerializeField] private float _deceleration = 25f; // 감속도 (멈출 때 속도)
-
     private Rigidbody2D _rb;
-    private PlayerInputHandler _input;
+    private Vector2 _targetDirection;
+    private Vector2 _lastFacingDirection = Vector2.down; // 기본값: 아래쪽 바라보기
+
+    public Vector2 CurrentTargetDirection => _lastFacingDirection;
 
     private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
-        _input = GetComponent<PlayerInputHandler>();
+        // 초기 설정 유지...
+    }
 
-        _rb.gravityScale = 0;
-        _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+    private void OnEnable() => InputManager.OnMove += HandleMoveInput;
+    private void OnDisable() => InputManager.OnMove -= HandleMoveInput;
 
-        // 팩트 체크: 물리 연산이 프레임에 독립적이도록 설정
-        _rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+    private void HandleMoveInput(Vector2 input)
+    {
+        if (input.sqrMagnitude < 0.01f)
+        {
+            _targetDirection = Vector2.zero;
+            return;
+        }
+
+        // 4방향 이동 로직
+        if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
+            _targetDirection = new Vector2(input.x > 0 ? 1 : -1, 0);
+        else
+            _targetDirection = new Vector2(0, input.y > 0 ? 1 : -1);
+
+        // [중요] 이동 중일 때만 마지막 바라본 방향을 갱신합니다.
+        _lastFacingDirection = _targetDirection;
+    }
+
+    // Interactor가 가져갈 방향 (이동 중엔 현재 방향, 멈추면 마지막 방향)
+    public Vector2 GetFacingDirection()
+    {
+        return _lastFacingDirection;
     }
 
     private void FixedUpdate()
     {
-        if (statData == null || _input == null) return;
-
-        // 1. 목표 속도 결정
-        Vector2 targetVelocity = _input.MovementInput * statData.moveSpeed;
-
-        // 2. 현재 상태에 따라 가속/감속 비율 선택
-        float lerpSpeed = _input.IsMoving ? _acceleration : _deceleration;
-
-        // 3. Lerp를 이용한 선형 보간 이동
-        _rb.linearVelocity = Vector2.Lerp(_rb.linearVelocity, targetVelocity, lerpSpeed * Time.fixedDeltaTime);
-
-        // [핵심] 4. 속도가 충분히 낮아지면 강제로 0으로 고정 (Snap to Zero)
-        // Lerp는 점근선이기 때문에 이 처리가 없으면 애니메이션이 안 멈출 수 있습니다.
-        if (!_input.IsMoving && _rb.linearVelocity.sqrMagnitude < 0.01f)
-        {
-            _rb.linearVelocity = Vector2.zero;
-        }
+        if (statData == null) return;
+        Vector2 targetVelocity = _targetDirection * statData.moveSpeed;
+        _rb.linearVelocity = Vector2.Lerp(_rb.linearVelocity, targetVelocity, 20f * Time.fixedDeltaTime);
     }
 }

@@ -13,6 +13,9 @@ public class PlayerData : ScriptableObject
     public int gold;
     public int moveSpeed;
 
+    [Header("Equip State")]
+    public ItemData currentEquippedItem;
+
     [Header("Inventory")]
     // 실제 게임에서는 ID를 저장하는 방식이 좋지만, 
     // 개발 초기 단계에서는 직관성을 위해 Slot 클래스를 사용합니다.
@@ -27,6 +30,8 @@ public class PlayerData : ScriptableObject
         moveSpeed = 5;
         inventorySlots.Clear();
     }
+
+
 }
 
 /// <summary>

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b3d92b2affcc57468ca9641da50137d, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: 
-  playerName: New Farmer
-  gold: 0
+  playerName: Player
+  gold: 10000
   moveSpeed: 5
   inventorySlots: []

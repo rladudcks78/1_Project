@@ -13,4 +13,10 @@ public class ItemManager : MonoBehaviour
     {
         
     }
+
+    public void Init()
+    {
+        Debug.Log("DataManager: 데이터 시스템 초기화 완료.");
+        // 필요 시 여기서 PlayerData의 초기화(Reset)나 세이브 파일 로드를 진행합니다.
+    }
 }
