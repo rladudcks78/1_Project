@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D _rb;
     private PlayerInputHandler _input;
 
-    private void Awake()
+    private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
         _input = GetComponent<PlayerInputHandler>();

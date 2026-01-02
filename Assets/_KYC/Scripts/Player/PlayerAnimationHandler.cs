@@ -15,7 +15,7 @@ public class PlayerAnimationHandler : MonoBehaviour
     private static readonly int HashMoveSide = Animator.StringToHash("IsWalking_Side");
     private static readonly int HashMoveDown = Animator.StringToHash("IsWalking_Down");
 
-    private void Awake()
+    private void Start()
     {
         _anim = GetComponent<Animator>();
         _sr = GetComponent<SpriteRenderer>();
