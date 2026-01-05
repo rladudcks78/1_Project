@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Peanut
   m_EditorClassIdentifier: 
   itemID: 1
-  itemName: Peanut
+  itemName: "\uC528\uC557"
   description: "\uB545\uCF69"
   icon: {fileID: 21300150, guid: 2700e06d970d112489ff23cfb58c3f78, type: 3}
   type: 0

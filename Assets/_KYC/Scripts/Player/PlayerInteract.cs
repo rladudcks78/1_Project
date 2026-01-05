@@ -4,31 +4,16 @@ using UnityEngine.InputSystem;
 public class PlayerInteract : MonoBehaviour
 {
     private PlayerController _controller;
-    private string _currentTool = "None";
 
     [Header("Reference")]
     [SerializeField] private ToolVisualizer _visualizer;
-
-    [Header("Test Data")]
-    [SerializeField] private CropData _testCrop; // 인스펙터에서 당근/밀 CropData를 할당하세요.
 
     private void Awake() => _controller = GetComponent<PlayerController>();
 
     private void OnEnable() => InputManager.OnInteract += PerformInteract;
     private void OnDisable() => InputManager.OnInteract -= PerformInteract;
 
-    private void Start()
-    {
-        ChangeTool("None");
-    }
-
-    private void Update()
-    {
-        // 숫자 키로 도구 교체 (임시 시스템)
-        if (Keyboard.current.digit1Key.wasPressedThisFrame) ChangeTool("Hoe");
-        if (Keyboard.current.digit2Key.wasPressedThisFrame) ChangeTool("Seed");
-        if (Keyboard.current.digit3Key.wasPressedThisFrame) ChangeTool("None");
-    }
+    // [중요] Update에서 하던 숫자키 입력 로직은 InventoryManager로 옮겨졌으므로 삭제합니다.
 
     private void PerformInteract()
     {
@@ -45,32 +30,48 @@ public class PlayerInteract : MonoBehaviour
             return;
         }
 
+        // [핵심] 인벤토리 매니저로부터 현재 핫바에서 선택된 아이템 데이터를 가져옵니다.
+        ItemData selectedItem = MasterManager.Inventory.SelectedItem;
+
+        // 아이템이 없으면 "None", 있으면 아이템의 Type을 문자열로 가져옵니다 (Seed, Tool 등)
+        string toolType = (selectedItem != null) ? selectedItem.type.ToString() : "None";
+
         // --- 상황별 로직 분기 ---
 
-        // 1. 도구가 선택된 상태 (개간, 씨앗 심기 등)
-        if (_currentTool != "None" && !string.IsNullOrEmpty(_currentTool))
+        if (toolType == "None")
         {
-            if (_currentTool == "Seed")
-            {
-                // TileManager의 수정된 메서드 호출: 위치, 도구명, 작물데이터 전달
-                MasterManager.Tile.HandleInteraction(mouseWorldPos, _currentTool, _testCrop);
-            }
-            else
-            {
-                // 일반 도구(괭이 등) 호출
-                MasterManager.Tile.HandleInteraction(mouseWorldPos, _currentTool);
-            }
+            // 1. 맨손 상태 -> 수확 시도
+            TryHarvest(mouseWorldPos);
         }
-        // 2. 맨손 상태 (수확 로직)
         else
         {
-            TryHarvest(mouseWorldPos);
+            // 2. 도구나 씨앗을 들고 있는 상태
+            HandleToolInteraction(mouseWorldPos, selectedItem, toolType);
         }
     }
 
-    /// <summary>
-    /// 마우스 위치의 작물을 확인하고 수확을 시도합니다.
-    /// </summary>
+    private void HandleToolInteraction(Vector3 mousePos, ItemData item, string toolType)
+    {
+        // 씨앗인 경우
+        if (toolType == "Seed")
+        {
+            // [참고] Seed 아이템 데이터에는 CropData가 연결되어 있어야 합니다.
+            // 만약 ItemData를 확장한 SeedItem 클래스가 있다면 형변환을 통해 가져옵니다.
+            // 일단은 기존 방식대로 작동하도록 하되, 핫바 선택에 따라 비주얼을 업데이트합니다.
+
+            // 테스트용 코드를 실제 아이템 데이터 기반으로 넘길 수 있게 확장 가능
+            MasterManager.Tile.HandleInteraction(mousePos, "Seed");
+        }
+        else if (toolType == "Tool")
+        {
+            // 아이템 이름이나 ID로 괭이인지 확인
+            if (item.itemName.Contains("괭이") || item.itemID.Contains("Hoe"))
+            {
+                MasterManager.Tile.HandleInteraction(mousePos, "Hoe");
+            }
+        }
+    }
+
     private void TryHarvest(Vector3 pos)
     {
         RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero);
@@ -83,32 +84,23 @@ public class PlayerInteract : MonoBehaviour
 
                 if (harvestedItem != null)
                 {
-                    // 1. 인벤토리에 아이템 추가
                     MasterManager.Inventory.AddItem(harvestedItem, 1);
-
-                    // 2. [핵심] 타일맵을 다시 개간된 상태로 변경
-                    // 작물의 위치(hit.transform.position)를 넘겨줍니다.
                     MasterManager.Tile.ResetToTilled(hit.transform.position);
-
-                    // 3. 작물 오브젝트 제거
                     Destroy(hit.collider.gameObject);
 
-                    Debug.Log("수확 완료 및 땅 복구 성공!");
+                    Debug.Log($"<color=cyan>{harvestedItem.itemName}</color> 수확 완료 및 땅 복구!");
                 }
             }
         }
     }
 
-    private void ChangeTool(string toolName)
+    // [수정] 이제 이 메서드는 InventoryManager에서 슬롯이 바뀔 때 호출해주면 좋습니다.
+    public void ChangeVisual(string toolName)
     {
-        _currentTool = toolName;
-
         if (_visualizer != null)
         {
             _visualizer.UpdateVisual(toolName);
         }
-
-        Debug.Log($"<color=orange>도구 교체: {toolName}</color>");
     }
 
     private void OnDrawGizmos()
