@@ -40,7 +40,7 @@ public class MasterManager : MonoBehaviour
     public static SaveManager Save => Instance._save;
     public static InventoryManager Inventory => Instance._inventory;
     public static ItemManager Item => Instance._item;
-    public static DayManager Game => Instance._day; 
+    public static DayManager Day => Instance._day; 
     public static TileManager Tile => Instance._tile;
     public static UIManager UI => Instance._ui;
     public static SoundManager Sound => Instance._sound;
