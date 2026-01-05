@@ -47,14 +47,24 @@ public class MasterManager : MonoBehaviour
 
     private void Awake()
     {
+        // 1. [팩트체크] 유령 인스턴스 파괴
+        // 에디터 메모리에 이름만 남은 유령 인스턴스가 있을 경우를 대비해 null 체크를 강화합니다.
         if (_instance != null && _instance != this)
         {
+            // 이미 다른 마스터 매니저가 있다면, 새로 생긴 녀석은 조용히 사라집니다.
             Destroy(gameObject);
             return;
         }
+
+        // 2. 인스턴스 확정
         _instance = this;
+
+        // 3. 씬이 바뀌어도 파괴되지 않게 설정 (핵심 기능)
+        // 이 함수가 호출되는 순간, 이 오브젝트는 'DontDestroyOnLoad' 씬으로 이동하며
+        // 일반적인 씬 저장 로직에서 제외됩니다. 여기서 Assertion이 발생할 수 있습니다.
         DontDestroyOnLoad(gameObject);
 
+        // 4. 초기화 실행
         InitAllManagers();
     }
 
@@ -77,5 +87,13 @@ public class MasterManager : MonoBehaviour
         if (_ui != null) _ui.Init();
 
         Debug.Log("<color=cyan>Every Ville: 기획서 일치 확인 및 초기화 완료</color>");
+    }
+
+    private void OnDestroy()
+    {
+        if (_instance == this)
+        {
+            _instance = null;
+        }
     }
 }

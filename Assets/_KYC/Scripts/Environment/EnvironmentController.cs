@@ -1,37 +1,32 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
-using System.Collections;
 
 /// <summary>
-/// ½Ã°£°ú ³¯¾¾¿¡ µû¶ó Àü¿ª ±¤¿øÀÇ »ö»ó°ú °­µµ¸¦ Á¦¾îÇÕ´Ï´Ù.
+/// ì‹œê°„ê³¼ ë‚ ì”¨ì— ë”°ë¼ ì „ì—­ ê´‘ì›ì˜ ìƒ‰ìƒê³¼ ê°•ë„ë¥¼ ì œì–´í•˜ë©°,
+/// ë°¤ ì‹œê°„ëŒ€ ì±„ë„ ì €í•˜(Hue Shift) ê¸°ëŠ¥ì„ í¬í•¨í•©ë‹ˆë‹¤.
 /// </summary>
 [RequireComponent(typeof(Light2D))]
-public class EnvironmentColorController : MonoBehaviour
+public class EnvironmentController : MonoBehaviour
 {
     [System.Serializable]
     public struct WeatherColorPreset
     {
         public string weatherName;
         public Gradient dayCycleGradient;
-        public AnimationCurve intensityCurve; // ½Ã°£¿¡ µû¸¥ ¹à±â º¯È­
+        public AnimationCurve intensityCurve;
     }
 
     [Header("Weather Presets")]
-    public WeatherColorPreset clearSky;  // ¸¼Àº ³¯
-    public WeatherColorPreset rainyDay;  // ºñ ¿À´Â ³¯
-
-    [Header("Transition Settings")]
-    public float weatherTransitionDuration = 2.0f;
+    public WeatherColorPreset clearSky;  // ë§‘ì€ ë‚ 
+    public WeatherColorPreset rainyDay;  // ë¹„ ì˜¤ëŠ” ë‚ 
 
     private Light2D globalLight;
-    private WeatherColorPreset currentPreset;
-    private WeatherColorPreset targetPreset;
-    private float transitionProgress = 1f;
+    private WeatherColorPreset currentPreset; // ì—¬ê¸°ì„œ ì„ ì–¸ëœ ì´ë¦„ì„ Updateì—ì„œ ì‚¬ìš©í•©ë‹ˆë‹¤.
 
     void Awake()
     {
         globalLight = GetComponent<Light2D>();
-        currentPreset = clearSky; // ±âº»°ªÀº ¸¼Àº ³¯
+        currentPreset = clearSky; // ê¸°ë³¸ê°’ ì„¸íŒ…
     }
 
     void Update()
@@ -40,28 +35,27 @@ public class EnvironmentColorController : MonoBehaviour
 
         float time = MasterManager.Day.GetTimeNormalized();
 
-        // ÇöÀç ÇÁ¸®¼Â°ú Å¸°Ù ÇÁ¸®¼Â »çÀÌÀÇ °ªÀ» º¸°£(Lerp)ÇÏ¿© ÃÖÁ¾ »ö»ó°ú °­µµ °áÁ¤
+        // 1. í˜„ì¬ í”„ë¦¬ì…‹ì—ì„œ ì‹œê°„ëŒ€ë³„ ìƒ‰ìƒê³¼ ê°•ë„ë¥¼ ê°€ì ¸ì˜´
         Color targetColor = currentPreset.dayCycleGradient.Evaluate(time);
         float targetIntensity = currentPreset.intensityCurve.Evaluate(time);
 
-        // ³¯¾¾ ÀüÈ¯ ÁßÀÏ ¶§ Ã³¸®
-        if (transitionProgress < 1f)
-        {
-            // ÀÌ ºÎºĞÀº ³ªÁß¿¡ ³¯¾¾ ½Ã½ºÅÛ ¿¬µ¿ ½Ã È°¼ºÈ­ (ÇöÀç´Â ´ÜÀÏ ÇÁ¸®¼Â ¿ì¼± Àû¿ë)
-        }
+        // 2. [ìƒ‰ë„ ë³€í™” ì¶”ê°€: ë°¤ì—ëŠ” ì±„ë„ë¥¼ ë‚®ì¶¤]
+        float h, s, v;
+        Color.RGBToHSV(targetColor, out h, out s, out v);
 
+        // Intensityê°€ ë‚®ì„ìˆ˜ë¡(ë°¤ì¼ìˆ˜ë¡) ì±„ë„ë¥¼ ìµœëŒ€ 40%ê¹Œì§€ ë‚®ì¶”ëŠ” ìˆ˜ì‹
+        // targetIntensityê°€ 0.2(ë°¤)ì´ë©´ saturationModifierëŠ” ì•½ 0.6ì´ ë©ë‹ˆë‹¤.
+        float saturationModifier = Mathf.Lerp(0.6f, 1.0f, targetIntensity);
+        targetColor = Color.HSVToRGB(h, s * saturationModifier, v);
+
+        // 3. ìµœì¢… ê°’ ì ìš©
         globalLight.color = targetColor;
         globalLight.intensity = targetIntensity;
     }
 
-    /// <summary>
-    /// ¿ÜºÎ(DayManager µî)¿¡¼­ ³¯¾¾¸¦ º¯°æÇÒ ¶§ È£ÃâÇÕ´Ï´Ù.
-    /// </summary>
-    public void ChangeWeather(string weatherName)
+    // ì™¸ë¶€(ì˜ˆ: WeatherManager)ì—ì„œ ë‚ ì”¨ë¥¼ ë°”ê¿€ ë•Œ í˜¸ì¶œí•  ë©”ì„œë“œ
+    public void ChangeWeather(bool isRainy)
     {
-        if (weatherName == "Rain") currentPreset = rainyDay;
-        else currentPreset = clearSky;
-
-        Debug.Log($"³¯¾¾ ±¤¿ø º¯°æ: {weatherName}");
+        currentPreset = isRainy ? rainyDay : clearSky;
     }
 }

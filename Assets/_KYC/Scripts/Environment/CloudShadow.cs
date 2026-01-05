@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 /// <summary>
-/// °³º° ±¸¸§ ±×¸²ÀÚÀÇ ÀÌµ¿, ·£´ý Å©±â, ÆäÀÌµå È¿°ú¸¦ °ü¸®ÇÕ´Ï´Ù.
+/// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½, ï¿½ï¿½ï¿½ï¿½ Å©ï¿½ï¿½, ï¿½ï¿½ï¿½Ìµï¿½ È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Õ´Ï´ï¿½.
 /// </summary>
 public class CloudShadow : MonoBehaviour
 {
@@ -17,7 +17,7 @@ public class CloudShadow : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸Å´ÏÀú·ÎºÎÅÍ ÃÊ±â ¼³Á¤À» ¹Þ¾Æ È°¼ºÈ­ÇÕ´Ï´Ù.
+    /// ï¿½Å´ï¿½ï¿½ï¿½ï¿½Îºï¿½ï¿½ï¿½ ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¾ï¿½ È°ï¿½ï¿½È­ï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void Initialize(float speed, Vector3 direction, float alpha, float randomScale)
     {
@@ -25,10 +25,10 @@ public class CloudShadow : MonoBehaviour
         moveDirection = direction.normalized;
         targetAlpha = alpha;
 
-        // 2¹ø ¿äÃ»»çÇ×: Å©±â ·£´ý Àû¿ë
+        // 2ï¿½ï¿½ ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½: Å©ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         transform.localScale = Vector3.one * randomScale;
 
-        // 3¹ø ¿äÃ»»çÇ×: ÆäÀÌµå ÀÎ ½ÃÀÛ
+        // 3ï¿½ï¿½ ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         StopAllCoroutines();
         StartCoroutine(FadeRoutine(0, targetAlpha, 2.0f));
     }
@@ -37,7 +37,7 @@ public class CloudShadow : MonoBehaviour
     {
         transform.Translate(moveDirection * moveSpeed * Time.deltaTime);
 
-        // È­¸é ¹ÛÀ¸·Î ¸Ö¸® ³ª°¡¸é ºñÈ°¼ºÈ­ (Ç®¸µ ¹ÝÈ¯)
+        // È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È°ï¿½ï¿½È­ (Ç®ï¿½ï¿½ ï¿½ï¿½È¯)
         if (transform.position.magnitude > 60f)
         {
             gameObject.SetActive(false);
@@ -47,7 +47,7 @@ public class CloudShadow : MonoBehaviour
     private IEnumerator FadeRoutine(float start, float end, float duration)
     {
         float elapsed = 0;
-        Color color = Color.black; // ±×¸²ÀÚ´Â °ËÀº»ö °íÁ¤
+        Color color = Color.black; // ï¿½×¸ï¿½ï¿½Ú´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
         while (elapsed < duration)
         {
@@ -59,6 +59,6 @@ public class CloudShadow : MonoBehaviour
         }
     }
 
-    // ºñÈ°¼ºÈ­µÉ ¶§(È­¸é ¹Û) ºÎµå·´°Ô »ç¶óÁö°Ô ÇÏ°í ½Í´Ù¸é º°µµÀÇ ·ÎÁ÷ÀÌ ÇÊ¿äÇÏÁö¸¸, 
-    // ¼º´ÉÀ» À§ÇØ È­¸é ¾ÈÀ¸·Î µé¾î¿Ã ¶§(In)¸¸ ÆäÀÌµå¸¦ ÁÖ´Â °ÍÀÌ È¿À²ÀûÀÔ´Ï´Ù.
+    // ï¿½ï¿½È°ï¿½ï¿½È­ï¿½ï¿½ ï¿½ï¿½(È­ï¿½ï¿½ ï¿½ï¿½) ï¿½Îµå·´ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ï°ï¿½ ï¿½Í´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, 
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ È­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½(In)ï¿½ï¿½ ï¿½ï¿½ï¿½Ìµå¸¦ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ï¿½Ô´Ï´ï¿½.
 }

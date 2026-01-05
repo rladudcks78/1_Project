@@ -1,107 +1,120 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
-/// ±¸¸§ ÇÁ¸®ÆÕ Ç®¸µ ¹× ·£´ı ½ºÆù ¹üÀ§¸¦ °ü¸®ÇÕ´Ï´Ù.
+/// êµ¬ë¦„ ê·¸ë¦¼ìë¥¼ ë” ë¦¬ì–¼í•˜ê²Œ ìƒì„±í•˜ê¸° ìœ„í•´ ì˜ì—­ ê¸°ë°˜ ëœë¤ ìŠ¤í°ì„ ê´€ë¦¬í•©ë‹ˆë‹¤.
+/// í¬íŠ¸í´ë¦¬ì˜¤ìš©ìœ¼ë¡œ 'ìì—°ìŠ¤ëŸ¬ìš´ ë¶ˆê·œì¹™ì„±'ì„ êµ¬í˜„í•˜ëŠ” ë° ì´ˆì ì„ ë§ì·„ìŠµë‹ˆë‹¤.
 /// </summary>
 public class CloudShadowManager : MonoBehaviour
 {
     [Header("Cloud Prefabs")]
     [SerializeField] private GameObject[] shadowPrefabs;
 
-    [Header("Spawn Area (Gizmos)")]
-    public float spawnX = -25f;
-    public float minY = -10f;
-    public float maxY = 20f;
+    [Header("Realism Spawn Settings")]
+    // 1. ì ì´ ì•„ë‹Œ ì˜ì—­(Area) ê¸°ë°˜ ìŠ¤í°ìœ¼ë¡œ ë³€ê²½
+    public float spawnX = -30f;
+    public float minY = -15f;
+    public float maxY = 25f;
 
     [Header("Random Options")]
     public float spawnInterval = 4f;
-    public float minSpeed = 0.7f;
-    public float maxSpeed = 1.8f;
-    public float minScale = 1.5f; // ±¸¸§ ±×¸²ÀÚ´Â º¸Åë Ä¿¾ß ÀÚ¿¬½º·´½À´Ï´Ù.
-    public float maxScale = 4.0f;
-    [Range(0f, 1f)] public float shadowAlpha = 0.3f;
+    [Range(0f, 2f)] public float timeJitter = 1.5f; // ìƒì„± ì£¼ê¸°ì— ë¬´ì‘ìœ„ì„± ë¶€ì—¬
+    public float minSpeed = 0.5f;
+    public float maxSpeed = 1.5f;
+    public float minScale = 2.0f;
+    public float maxScale = 5.0f;
+    [Range(0f, 1f)] public float shadowAlpha = 0.25f;
 
     private List<CloudShadow> shadowPool = new List<CloudShadow>();
-    private float timer;
+    private float nextSpawnTime;
 
     void Start()
     {
         InitializePool();
+        SetNextSpawnTime();
     }
 
     private void InitializePool()
     {
+        if (shadowPrefabs == null || shadowPrefabs.Length == 0) return;
+
         foreach (var prefab in shadowPrefabs)
         {
-            for (int i = 0; i < 3; i++) // Á¾·ùº°·Î 3°³¾¿ Ç®¸µ
+            for (int i = 0; i < 5; i++) // ì´ˆê¸° í’€ ì‚¬ì´ì¦ˆë¥¼ ë„‰ë„‰í•˜ê²Œ í™•ì¥ 
             {
-                GameObject obj = Instantiate(prefab, transform);
-                CloudShadow shadow = obj.getOrAddComponent<CloudShadow>();
-                obj.SetActive(false);
-                shadowPool.Add(shadow);
+                CreateNewCloudInstance(prefab);
             }
         }
+
+        // ì´ˆê¸° í’€ ì…”í”Œë¡œ ë‹¤ì–‘ì„± í™•ë³´
+        shadowPool = shadowPool.OrderBy(x => Random.value).ToList();
+    }
+
+    private void CreateNewCloudInstance(GameObject prefab)
+    {
+        GameObject obj = Instantiate(prefab, transform);
+        CloudShadow shadow = obj.getOrAddComponent<CloudShadow>();
+        obj.SetActive(false);
+        shadowPool.Add(shadow);
     }
 
     void Update()
     {
-        timer += Time.deltaTime;
-        if (timer >= spawnInterval)
+        // 2. ì¼ì •í•œ íƒ€ì´ë¨¸ ëŒ€ì‹  'ë‹¤ìŒ ìƒì„± ì‹œì 'ì„ ê³„ì‚°í•˜ì—¬ ë¶ˆê·œì¹™ì„± ë¶€ì—¬
+        if (Time.time >= nextSpawnTime)
         {
             SpawnCloud();
-            timer = 0f;
+            SetNextSpawnTime();
         }
+    }
+
+    private void SetNextSpawnTime()
+    {
+        // ê¸°ë³¸ ê°„ê²©ì— +- jitterë¥¼ ë”í•´ ë¦¬ì–¼í•œ ìƒì„± ì£¼ê¸° í˜•ì„±
+        float randomDelay = Random.Range(-timeJitter, timeJitter);
+        nextSpawnTime = Time.time + spawnInterval + randomDelay;
     }
 
     private void SpawnCloud()
     {
-        // 1. ÇöÀç Ç®¿¡¼­ ºñÈ°¼ºÈ­µÈ(»ç¿ë °¡´ÉÇÑ) ¸ğµç ±¸¸§µéÀ» ¸®½ºÆ®·Î °¡Á®¿É´Ï´Ù.
-        List<CloudShadow> availableShadows = shadowPool.FindAll(s => !s.gameObject.activeInHierarchy);
+        var availableShadow = shadowPool.FirstOrDefault(s => !s.gameObject.activeInHierarchy);
 
-        // 2. »ç¿ë °¡´ÉÇÑ ±¸¸§ÀÌ ÀÖ´Ù¸é ¹«ÀÛÀ§·Î ÇÏ³ª¸¦ ¼±ÅÃÇÕ´Ï´Ù.
-        if (availableShadows.Count > 0)
+        if (availableShadow == null)
         {
-            // ·£´ı ÀÎµ¦½º ÃßÃâ (¼ø¼­´ë·Î°¡ ¾Æ´Ñ ÁøÂ¥ ·£´ı)
-            int randomIndex = Random.Range(0, availableShadows.Count);
-            CloudShadow shadow = availableShadows[randomIndex];
-
-            // 3. À§Ä¡ ·£´ı ¼³Á¤ (±âÁ¸ ·ÎÁ÷ À¯Áö)
-            float randomY = Random.Range(minY, maxY);
-            shadow.transform.position = new Vector3(spawnX, randomY, 0);
-
-            // 4. ¼Óµµ ¹× Å©±â ·£´ı ¼³Á¤
-            float speed = Random.Range(minSpeed, maxSpeed);
-            float scale = Random.Range(minScale, maxScale);
-
-            // 5. È°¼ºÈ­ ¹× ÃÊ±âÈ­
-            shadow.gameObject.SetActive(true);
-
-            // ¹Ù¶÷ ¹æÇâÀ» »ìÂ¦¾¿ Æ²¾îÁÖ¸é ´õ ÀÚ¿¬½º·´½À´Ï´Ù (Vector3.right¿¡ ·£´ı y°ª Ãß°¡)
-            Vector3 randomDirection = new Vector3(1f, Random.Range(-0.2f, 0.05f), 0f);
-            shadow.Initialize(speed, randomDirection, shadowAlpha, scale);
+            CreateNewCloudInstance(shadowPrefabs[Random.Range(0, shadowPrefabs.Length)]);
+            availableShadow = shadowPool.Last();
         }
-        else
-        {
-            // ¸¸¾à ¸ğµç ±¸¸§ÀÌ »ç¿ë ÁßÀÌ¶ó¸é Ç® »çÀÌÁî¸¦ ´Ã·Á¾ß ÇÒ ¼öµµ ÀÖ´Ù´Â ·Î±× (µğ¹ö±ë¿ë)
-            Debug.LogWarning("¸ğµç ±¸¸§ ÇÁ¸®ÆÕÀÌ È­¸é¿¡ Ç¥½Ã ÁßÀÔ´Ï´Ù. Pool Size¸¦ ´Ã¸®´Â °ÍÀ» °í·ÁÇÏ¼¼¿ä.");
-        }
+
+        // 3. ë¦¬ì–¼í•œ ìœ„ì¹˜ ì„ ì •: Yì¶• ë²”ìœ„ ë‚´ì—ì„œ ì™„ì „ ëœë¤ + ì•½ê°„ì˜ Xì¶• ì˜¤í”„ì…‹
+        float randomY = Random.Range(minY, maxY);
+        float randomXOffset = Random.Range(-2f, 2f); // ì‹œì‘ì ë„ ì‚´ì§ ë‹¤ë¥´ê²Œ
+        availableShadow.transform.position = new Vector3(spawnX + randomXOffset, randomY, 0);
+
+        // 4. ë¦¬ì–¼í•œ ì™¸í˜• ì„¤ì •
+        float speed = Random.Range(minSpeed, maxSpeed);
+        float scale = Random.Range(minScale, maxScale);
+
+        // Sorting Orderë¥¼ ëœë¤í•˜ê²Œ ì£¼ì–´ ê·¸ë¦¼ìë¼ë¦¬ ê²¹ì¹  ë•Œ ì…ì²´ê° ë¶€ì—¬ (í•„ìš” ì‹œ SpriteRenderer ì ‘ê·¼)
+        //var sr = availableShadow.GetComponentInChildren<SpriteRenderer>();
+        //if (sr != null) sr.sortingOrder = Random.Range(4, 5); // ë°°ê²½ë³´ë‹¤ëŠ” ìœ„, ì˜¤ë¸Œì íŠ¸ë³´ë‹¤ëŠ” ì•„ë˜ 
+
+        availableShadow.gameObject.SetActive(true);
+
+        // ë°”ëŒ ë°©í–¥ì— ì•½ê°„ì˜ 'ê¸°ë¥˜' ëœë¤ì„± ì¶”ê°€
+        Vector3 windDirection = new Vector3(1f, Random.Range(-0.08f, 0.08f), 0f);
+        availableShadow.Initialize(speed, windDirection, shadowAlpha, scale);
     }
 
-    // ¿¡µğÅÍ °¡½Ã¼ºÀ» À§ÇÑ ±âÁî¸ğ
+    // ì—ë””í„°ì—ì„œ ìƒì„± ì˜ì—­ì„ ì‹œê°í™” (ê¸°íšì„œ 2-1 ë°ì´í„° í™•ì¸ìš©) [cite: 8]
     private void OnDrawGizmosSelected()
     {
+        Gizmos.color = new Color(1, 1, 0, 0.3f);
+        Vector3 center = new Vector3(spawnX, (minY + maxY) / 2, 0);
+        Vector3 size = new Vector3(1f, maxY - minY, 1f);
+        Gizmos.DrawCube(center, size);
+
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(new Vector3(spawnX, minY, 0), new Vector3(spawnX, maxY, 0));
-    }
-}
-
-// È®Àå ¸Ş¼­µå: ÄÄÆ÷³ÍÆ®°¡ ¾øÀ¸¸é ºÙ¿©ÁÖ´Â ±â´É (À¯Áöº¸¼ö¿ë)
-public static class GameObjectExtensions
-{
-    public static T getOrAddComponent<T>(this GameObject obj) where T : Component
-    {
-        T component = obj.GetComponent<T>();
-        return component != null ? component : obj.AddComponent<T>();
     }
 }
