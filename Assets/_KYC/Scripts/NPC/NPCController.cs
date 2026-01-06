@@ -8,7 +8,10 @@ public class NPCController : MonoBehaviour
     public void Interact()
     {
         // 1. 이미 대화 중이면 중복 실행 방지
-        if (MasterManager.Dialogue.isDialogueActive) return;
+        if (MasterManager.Dialogue.isDialogueActive || MasterManager.Shop.IsShopActive)
+        {
+            return;
+        }
 
         // 2. 거리 체크: 플레이어가 너무 멀면 무시
         float dist = Vector2.Distance(transform.position, MasterManager.Data.PlayerTransform.position);

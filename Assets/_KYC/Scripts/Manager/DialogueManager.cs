@@ -18,6 +18,8 @@ public class DialogueManager : MonoBehaviour
     private Queue<string> sentences = new Queue<string>(); // 문장들을 담는 줄서기
     public bool isDialogueActive { get; private set; }
 
+    private NPCData currentNPCData;
+
     private bool isTyping = false;  // 현재 글자가 찍히는 중인지 확인
     private string currentSentence; // 현재 전체 문장 저장
 
@@ -31,6 +33,8 @@ public class DialogueManager : MonoBehaviour
     // 대화 시작 함수
     public void StartDialogue(NPCData data)
     {
+        currentNPCData = data;
+
         isDialogueActive = true;
         dialoguePanel.SetActive(true); // 1. 패널 켜기
 
@@ -86,11 +90,20 @@ public class DialogueManager : MonoBehaviour
         isTyping = false;
     }
 
-    private void EndDialogue()
+    public void EndDialogue()
     {
         isDialogueActive = false;
-        dialoguePanel.SetActive(false);
-        dialogueText.text = ""; // 텍스트 초기화
-        Debug.Log("대화 종료 및 패널 닫기");
+
+        // 1. UI 닫기 명령은 지휘관(UIManager)에게 맡김
+        MasterManager.UI.CloseAllPanels();
+
+        // 2. 대화 종료 후 후속 작업 (상점 오픈) 판단
+        if (currentNPCData != null && currentNPCData.role == NPCRole.Merchant)
+        {
+            // 3. 상점 매니저에게 "데이터 줄 테니 상점 업무 시작해"라고 명령
+            MasterManager.Shop.OpenShop(currentNPCData);
+        }
+
+        currentNPCData = null;
     }
 }

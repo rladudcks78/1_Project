@@ -17,7 +17,17 @@ public class PlayerInteract : MonoBehaviour
 
     private void PerformInteract()
     {
-        if (MasterManager.Dialogue.isDialogueActive) return;
+        // 1. 마우스가 UI 위에 있다면 NPC 클릭 로직 실행 안 함 (클릭 관통 방지)
+        if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
+        // 2. 대화 중이거나 상점이 열려 있다면 클릭 무시
+        if (MasterManager.Dialogue.isDialogueActive || MasterManager.Shop.IsShopActive)
+        {
+            return;
+        }
 
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.z = 0;

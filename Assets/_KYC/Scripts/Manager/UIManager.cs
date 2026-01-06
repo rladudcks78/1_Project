@@ -6,6 +6,7 @@ public class UIManager : MonoBehaviour
     [Header("UI Panels")]
     [SerializeField] private GameObject inventoryPanel; //
     [SerializeField] private GameObject dialoguePanel; //
+    [SerializeField] private GameObject shopPanel;
 
     public void Init()
     {
@@ -44,9 +45,22 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void OpenShopUI()
+    {
+        if (shopPanel != null)
+        {
+            shopPanel.SetActive(true);
+            // 상점이 열릴 때 다른 UI(인벤토리 등)를 닫고 싶다면 여기서 처리 가능합니다.
+        }
+    }
+
     public void CloseAllPanels()
     {
-        if (inventoryPanel != null) inventoryPanel.SetActive(false); //
-        if (dialoguePanel != null) dialoguePanel.SetActive(false); //
+        if (inventoryPanel != null) inventoryPanel.SetActive(false);
+        if (dialoguePanel != null) dialoguePanel.SetActive(false);
+        if (shopPanel != null) shopPanel.SetActive(false); // [추가] 상점 닫기 통합
+
+        // 상점이 닫힐 때 ShopManager에게 알림이 필요하다면 아래처럼 호출 가능합니다.
+        if (MasterManager.Shop != null) MasterManager.Shop.SetShopInactive();
     }
 }

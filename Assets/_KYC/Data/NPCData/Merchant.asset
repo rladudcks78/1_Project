@@ -14,7 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcName: Richard
   portrait: {fileID: 4858879839686596374, guid: c6c7aba9ea409ec479230f8636d7a6ba, type: 3}
-  role: 0
+  role: 1
   defaultDialogues:
   - Hello! World!
-  shopItems: []
+  - Im Richard
+  shopItems:
+  - {fileID: 11400000, guid: 59597e6fb3ff48d44be61052e99f9896, type: 2}
+  - {fileID: 11400000, guid: b5f15609fc6baad409267a79d4d18812, type: 2}
