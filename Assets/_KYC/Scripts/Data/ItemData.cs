@@ -11,6 +11,8 @@ public abstract class ItemData : ScriptableObject
     [TextArea] public string description;
     public Sprite icon;
     public ItemType type;
+    public int buyPrice;
+    public int sellPrice;
     public int maxStack = 99;
 
     public abstract void Use();

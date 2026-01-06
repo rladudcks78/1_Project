@@ -17,5 +17,7 @@ MonoBehaviour:
   description: "\uBC2D\uC744 \uAC1C\uAC04\uD560 \uC218 \uC788\uB294 \uAD2D\uC774"
   icon: {fileID: 21300208, guid: 2700e06d970d112489ff23cfb58c3f78, type: 3}
   type: 1
+  buyPrice: 100
+  sellPrice: 10
   maxStack: 1
   power: 0
