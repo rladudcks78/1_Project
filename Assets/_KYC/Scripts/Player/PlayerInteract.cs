@@ -1,6 +1,11 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
+/// <summary>
+/// 플레이어의 모든 상호작용(NPC 대화, 농사, 수확)을 담당하는 클래스.
+/// 포트폴리오 포인트: Input System과 UI EventSystem 간의 실행 순서 문제를 해결한 로직 포함.
+/// </summary>
 public class PlayerInteract : MonoBehaviour
 {
     private PlayerController _controller;
@@ -8,89 +13,96 @@ public class PlayerInteract : MonoBehaviour
     [Header("Reference")]
     [SerializeField] private ToolVisualizer _visualizer;
 
+    // 상호작용 예약 플래그 (UI 체크 타이밍 문제를 피하기 위함)
+    private bool _interactReserved = false;
+
     private void Awake() => _controller = GetComponent<PlayerController>();
 
-    private void OnEnable() => InputManager.OnInteract += PerformInteract;
-    private void OnDisable() => InputManager.OnInteract -= PerformInteract;
+    // InputManager의 이벤트를 구독
+    private void OnEnable() => InputManager.OnInteract += ReserveInteract;
+    private void OnDisable() => InputManager.OnInteract -= ReserveInteract;
 
-    // [중요] Update에서 하던 숫자키 입력 로직은 InventoryManager로 옮겨졌으므로 삭제합니다.
+    /// <summary>
+    /// 입력이 들어왔을 때 즉시 실행하지 않고 '예약'만 합니다.
+    /// 이렇게 하면 유니티의 Update 루프 안에서 안전하게 UI 점유 여부를 판단할 수 있습니다.
+    /// </summary>
+    private void ReserveInteract()
+    {
+        _interactReserved = true;
+    }
+
+    private void Update()
+    {
+        // 입력 예약이 되었을 때만 실행
+        if (_interactReserved)
+        {
+            PerformInteract();
+            _interactReserved = false; // 실행 후 예약 해제
+        }
+    }
 
     private void PerformInteract()
     {
-        // 1. 마우스가 UI 위에 있다면 NPC 클릭 로직 실행 안 함 (클릭 관통 방지)
-        if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+        // 1. 현재 프레임에서 마우스가 UI 위에 있는지 체크
+        // Update 내에서 실행하므로 IsPointerOverGameObject()가 정확한 상태를 반환합니다.
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
         {
             return;
         }
 
-        // 2. 대화 중이거나 상점이 열려 있다면 클릭 무시
+        // 2. 대화 중이거나 상점이 열려 있다면 월드 클릭 무시
         if (MasterManager.Dialogue.isDialogueActive || MasterManager.Shop.IsShopActive)
         {
             return;
         }
 
+        // 3. 마우스 위치 계산 (Z축은 0으로 고정)
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.z = 0;
 
+        // 4. NPC 상호작용 체크
         Collider2D hit = Physics2D.OverlapPoint(mousePos);
         if (hit != null && hit.TryGetComponent<NPCController>(out NPCController npc))
         {
-            if (Vector2.Distance(transform.position, hit.transform.position) <= 2.0f)
+            // 거리 체크 (2.5 유닛 이내일 때만 대화 가능)
+            if (Vector2.Distance(transform.position, hit.transform.position) <= 2.5f)
             {
-                npc.Interact(); // 여기서 StartDialogue 호출
-                return;
+                npc.Interact();
+                return; // NPC와 상호작용했다면 아래 농사 로직은 건너뜀
             }
         }
 
-
-        float interactRange = 2.0f;
-        float distance = Vector2.Distance(transform.position, mousePos);
-
-        // 상호작용 가능 거리 체크
-        if (distance > interactRange)
-        {
-            Debug.Log("<color=red>거리가 너무 멉니다.</color>");
-            return;
-        }
-
-        // [핵심] 인벤토리 매니저로부터 현재 핫바에서 선택된 아이템 데이터를 가져옵니다.
-        ItemData selectedItem = MasterManager.Inventory.SelectedItem;
-
-        // 아이템이 없으면 "None", 있으면 아이템의 Type을 문자열로 가져옵니다 (Seed, Tool 등)
-        string toolType = (selectedItem != null) ? selectedItem.type.ToString() : "None";
-
-        // --- 상황별 로직 분기 ---
-
-        if (toolType == "None")
-        {
-            // 1. 맨손 상태 -> 수확 시도
-            TryHarvest(mousePos);
-        }
-        else
-        {
-            // 2. 도구나 씨앗을 들고 있는 상태
-            HandleToolInteraction(mousePos, selectedItem, toolType);
-        }
+        // 5. 농사 및 아이템 사용 로직
+        HandleWorldInteraction(mousePos);
     }
 
-    private void HandleToolInteraction(Vector3 mousePos, ItemData item, string toolType)
+    private void HandleWorldInteraction(Vector3 mousePos)
     {
-        // 씨앗인 경우
-        if (toolType == "Seed")
-        {
-            // [참고] Seed 아이템 데이터에는 CropData가 연결되어 있어야 합니다.
-            // 만약 ItemData를 확장한 SeedItem 클래스가 있다면 형변환을 통해 가져옵니다.
-            // 일단은 기존 방식대로 작동하도록 하되, 핫바 선택에 따라 비주얼을 업데이트합니다.
+        ItemData item = MasterManager.Inventory.GetSelectedItem();
 
-            // 테스트용 코드를 실제 아이템 데이터 기반으로 넘길 수 있게 확장 가능
-            MasterManager.Tile.HandleInteraction(mousePos, "Seed");
-        }
-        else if (toolType == "Tool")
+        if (item == null)
         {
-            // 아이템 이름이나 ID로 괭이인지 확인
-            if (item.itemName.Contains("괭이") || item.itemID.Contains("Hoe"))
+            TryHarvest(mousePos); // 오직 맨손일 때만 수확 시도
+            Debug.Log("맨손 상호작용: 수확 시도");
+            return; // 맨손 로직 끝났으므로 종료
+        }
+
+        if (item != null)
+        {
+            // 1. 씨앗류 처리 (ID 범위를 200~299로 정했다고 가정)
+            if (item is CropData seedData)
+            {
+                MasterManager.Tile.HandleInteraction(mousePos, "Seed", seedData);
+            }
+            // 2. 도구류 처리 (ID 101: 괭이)
+            else if (item.itemID == 101)
             {
                 MasterManager.Tile.HandleInteraction(mousePos, "Hoe");
+            }
+            // 3. 도구류 처리 (ID 104: 물뿌리개 - 향후 확장 대비)
+            else if (item.itemID == 104)
+            {
+                MasterManager.Tile.HandleInteraction(mousePos, "WateringCan");
             }
         }
     }
@@ -111,29 +123,14 @@ public class PlayerInteract : MonoBehaviour
                     MasterManager.Tile.ResetToTilled(hit.transform.position);
                     Destroy(hit.collider.gameObject);
 
-                    Debug.Log($"<color=cyan>{harvestedItem.itemName}</color> 수확 완료 및 땅 복구!");
+                    Debug.Log($"<color=cyan>{harvestedItem.itemName}</color> 수확 완료!");
                 }
             }
         }
     }
 
-    // [수정] 이제 이 메서드는 InventoryManager에서 슬롯이 바뀔 때 호출해주면 좋습니다.
     public void ChangeVisual(string toolName)
     {
-        if (_visualizer != null)
-        {
-            _visualizer.UpdateVisual(toolName);
-        }
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (!Application.isPlaying) return;
-
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePos.z = 0;
-
-        Gizmos.color = Vector2.Distance(transform.position, mousePos) <= 2.0f ? Color.green : Color.red;
-        Gizmos.DrawWireSphere(mousePos, 0.2f);
+        if (_visualizer != null) _visualizer.UpdateVisual(toolName);
     }
 }

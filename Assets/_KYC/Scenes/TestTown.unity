@@ -2969,8 +2969,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   inventoryView: {fileID: 1314080640}
   hotbarView: {fileID: 453186507}
-  hoeItem: {fileID: 11400000, guid: 6c54baaade690b24cb8570ffb8ee16aa, type: 2}
-  seedItem: {fileID: 11400000, guid: 7cc3f224682d938459058ea61ab97df5, type: 2}
+  hoeItem: {fileID: 11400000, guid: 120dec2ec447f074fb28d7c91f4d0685, type: 2}
+  seedItem: {fileID: 11400000, guid: b853b4274d4155045811a31d3367ffef, type: 2}
 --- !u!114 &678011740
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3024,7 +3024,7 @@ MonoBehaviour:
   _tilledTile: {fileID: 11400000, guid: 4465d323c31c6674f965fb8b80052cec, type: 2}
   _seedTile: {fileID: 11400000, guid: afd03fd1bba060947b9dce3dc908d200, type: 2}
   cropPrefab: {fileID: 3374746916075687208, guid: 860fccc5cc2f5ff4bb1cdad8419de025, type: 3}
-  _testCropData: {fileID: 11400000, guid: 1e784b6e4e424624d86ab93e057e9f03, type: 2}
+  _testCropData: {fileID: 11400000, guid: b853b4274d4155045811a31d3367ffef, type: 2}
 --- !u!114 &678011744
 MonoBehaviour:
   m_ObjectHideFlags: 0

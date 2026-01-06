@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df0a59891c19c5444974467d2e5ed438, type: 3}
   m_Name: Peanut
   m_EditorClassIdentifier: 
-  itemID: 1
-  itemName: "\uC528\uC557"
-  description: "\uB545\uCF69"
-  icon: {fileID: 21300150, guid: 2700e06d970d112489ff23cfb58c3f78, type: 3}
+  itemID: 301
+  itemName: Peanut
+  description: Its Peanut
+  icon: {fileID: 21300124, guid: 2700e06d970d112489ff23cfb58c3f78, type: 3}
   type: 0
-  buyPrice: 100
-  sellPrice: 10
+  buyPrice: 10
+  sellPrice: 1
   maxStack: 99
-  cropToPlant: {fileID: 11400000, guid: 1e784b6e4e424624d86ab93e057e9f03, type: 2}
+  cropToPlant: {fileID: 11400000, guid: b853b4274d4155045811a31d3367ffef, type: 2}

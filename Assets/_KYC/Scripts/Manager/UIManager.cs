@@ -54,13 +54,31 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void OpenDialogueUI()
+    {
+        if (dialoguePanel != null)
+        {
+            // 대화창이 열릴 때는 다른 UI(인벤토리 등)를 닫아주는 것이 좋습니다.
+            inventoryPanel.SetActive(false);
+            shopPanel.SetActive(false);
+
+            dialoguePanel.SetActive(true);
+        }
+    }
+
     public void CloseAllPanels()
     {
         if (inventoryPanel != null) inventoryPanel.SetActive(false);
-        if (dialoguePanel != null) dialoguePanel.SetActive(false);
-        if (shopPanel != null) shopPanel.SetActive(false); // [추가] 상점 닫기 통합
+        if (shopPanel != null) shopPanel.SetActive(false);
 
-        // 상점이 닫힐 때 ShopManager에게 알림이 필요하다면 아래처럼 호출 가능합니다.
-        if (MasterManager.Shop != null) MasterManager.Shop.SetShopInactive();
+        // [중요] 대화창을 닫을 때는 DialogueManager의 상태도 리셋해줘야 합니다.
+        if (dialoguePanel != null && dialoguePanel.activeSelf)
+        {
+            dialoguePanel.SetActive(false);
+            if (MasterManager.Dialogue != null)
+            {
+                MasterManager.Dialogue.EndDialogue(); // 대화 종료 로직 강제 호출
+            }
+        }
     }
 }

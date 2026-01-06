@@ -19,5 +19,5 @@ MonoBehaviour:
   - Hello! World!
   - Im Richard
   shopItems:
-  - {fileID: 11400000, guid: 59597e6fb3ff48d44be61052e99f9896, type: 2}
-  - {fileID: 11400000, guid: b5f15609fc6baad409267a79d4d18812, type: 2}
+  - {fileID: 11400000, guid: 6025a8c75c1936342a9e83c709671601, type: 2}
+  - {fileID: 11400000, guid: 580cddab75332b04d9c895418709ce49, type: 2}

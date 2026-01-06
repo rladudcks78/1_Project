@@ -148,4 +148,10 @@ public class InventoryManager : MonoBehaviour
             Debug.Log($"[Select] {index}번 슬롯 선택됨. 도구명: {nameToSend}");
         }
     }
+
+    public ItemData GetSelectedItem()
+    {
+        // 이미 만들어두신 SelectedItem 프로퍼티를 활용하여 중복 로직을 방지합니다. (유지보수성 향상)
+        return SelectedItem;
+    }
 }

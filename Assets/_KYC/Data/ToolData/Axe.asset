@@ -9,12 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28648a24158097844a25bb78a931eb92, type: 3}
-  m_Name: Plant
+  m_Script: {fileID: 11500000, guid: 1c6accef49d100a4dadb7cc32d4f781b, type: 3}
+  m_Name: Axe
   m_EditorClassIdentifier: 
-  cropName: Peanut
-  growthTimePerStage: 10
-  growthSprites: []
-  harvestItem: {fileID: 11400000, guid: 7cc3f224682d938459058ea61ab97df5, type: 2}
-  minHarvestCount: 1
-  maxHarvestCount: 3
+  itemID: 102
+  itemName: Axe
+  description: Its Axe
+  icon: {fileID: 21300212, guid: 2700e06d970d112489ff23cfb58c3f78, type: 3}
+  type: 1
+  buyPrice: 10
+  sellPrice: 0
+  maxStack: 1
