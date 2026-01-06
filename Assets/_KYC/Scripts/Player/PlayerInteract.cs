@@ -17,11 +17,24 @@ public class PlayerInteract : MonoBehaviour
 
     private void PerformInteract()
     {
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorldPos.z = 0;
+        if (MasterManager.Dialogue.isDialogueActive) return;
+
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mousePos.z = 0;
+
+        Collider2D hit = Physics2D.OverlapPoint(mousePos);
+        if (hit != null && hit.TryGetComponent<NPCController>(out NPCController npc))
+        {
+            if (Vector2.Distance(transform.position, hit.transform.position) <= 2.0f)
+            {
+                npc.Interact(); // 여기서 StartDialogue 호출
+                return;
+            }
+        }
+
 
         float interactRange = 2.0f;
-        float distance = Vector2.Distance(transform.position, mouseWorldPos);
+        float distance = Vector2.Distance(transform.position, mousePos);
 
         // 상호작용 가능 거리 체크
         if (distance > interactRange)
@@ -41,12 +54,12 @@ public class PlayerInteract : MonoBehaviour
         if (toolType == "None")
         {
             // 1. 맨손 상태 -> 수확 시도
-            TryHarvest(mouseWorldPos);
+            TryHarvest(mousePos);
         }
         else
         {
             // 2. 도구나 씨앗을 들고 있는 상태
-            HandleToolInteraction(mouseWorldPos, selectedItem, toolType);
+            HandleToolInteraction(mousePos, selectedItem, toolType);
         }
     }
 

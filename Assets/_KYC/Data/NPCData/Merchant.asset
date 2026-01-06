@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c5f7f5d1a2771e49b33abd4ef900ce6, type: 3}
+  m_Name: Merchant
+  m_EditorClassIdentifier: 
+  npcName: Richard
+  portrait: {fileID: 4858879839686596374, guid: c6c7aba9ea409ec479230f8636d7a6ba, type: 3}
+  role: 0
+  defaultDialogues:
+  - Hello! World!
+  shopItems: []
