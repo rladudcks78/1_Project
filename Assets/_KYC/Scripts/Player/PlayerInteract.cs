@@ -12,6 +12,8 @@ public class PlayerInteract : MonoBehaviour
 
     [Header("Reference")]
     [SerializeField] private ToolVisualizer _visualizer;
+    [Header("Settings")]
+    [SerializeField] private float interactRange = 2.0f; // 상호작용 가능한 최대 거리
 
     // 상호작용 예약 플래그 (UI 체크 타이밍 문제를 피하기 위함)
     private bool _interactReserved = false;
@@ -52,6 +54,14 @@ public class PlayerInteract : MonoBehaviour
 
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(screenPos);
         mousePos.z = 0;
+
+        float distance = Vector2.Distance(transform.position, mousePos);
+
+        if (distance > interactRange)
+        {
+            Debug.Log($"<color=yellow>너무 멉니다! (거리: {distance:F1})</color>");
+            return; // 거리가 멀면 아래 로직을 실행하지 않고 종료
+        }
 
         // 4. NPC 상호작용 체크
         Collider2D hit = Physics2D.OverlapPoint(mousePos);
