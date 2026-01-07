@@ -33,6 +33,8 @@ public class MasterManager : MonoBehaviour
     [Header("Interface & Audio")]
     [SerializeField] private UIManager _ui;
     [SerializeField] private SoundManager _sound;
+    [SerializeField] private DialogueManager _dialogue;
+    [SerializeField] private ShopManager _shop;
 
     // --- 기획서 명칭 기반 정적 프로퍼티 ---
     public static DataManager Data => Instance._data;
@@ -44,6 +46,8 @@ public class MasterManager : MonoBehaviour
     public static TileManager Tile => Instance._tile;
     public static UIManager UI => Instance._ui;
     public static SoundManager Sound => Instance._sound;
+    public static DialogueManager Dialogue => Instance._dialogue;
+    public static ShopManager Shop => Instance._shop;
 
     private void Awake()
     {
@@ -85,8 +89,10 @@ public class MasterManager : MonoBehaviour
 
         if (_sound != null) _sound.Init();
         if (_ui != null) _ui.Init();
+        if (_dialogue != null) _dialogue.Init();
+        if (_shop != null) _shop.Init();
 
-        Debug.Log("<color=cyan>Every Ville: 기획서 일치 확인 및 초기화 완료</color>");
+        Debug.Log("<color=cyan>Every Ville: 초기화 완료</color>");
     }
 
     private void OnDestroy()

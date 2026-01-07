@@ -87,7 +87,7 @@ public class TileManager : MonoBehaviour
             if (go.TryGetComponent<Crop>(out Crop crop))
             {
                 crop.Init(data);
-                Debug.Log($"{gridPos}에 {data.cropName}을(를) 심었습니다.");
+                Debug.Log($"{gridPos}에 {data.itemName}을(를) 심었습니다.");
             }
         }
     }
