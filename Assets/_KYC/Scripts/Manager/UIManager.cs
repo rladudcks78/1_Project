@@ -69,16 +69,18 @@ public class UIManager : MonoBehaviour
     public void CloseAllPanels()
     {
         if (inventoryPanel != null) inventoryPanel.SetActive(false);
-        if (shopPanel != null) shopPanel.SetActive(false);
 
-        // [중요] 대화창을 닫을 때는 DialogueManager의 상태도 리셋해줘야 합니다.
+        // 상점 패널이 켜져 있을 때 끄면서 데이터 상태도 리셋
+        if (shopPanel != null && shopPanel.activeSelf)
+        {
+            shopPanel.SetActive(false);
+            MasterManager.Shop.SetShopInactive(); // [추가] 논리 변수 false 처리
+        }
+
         if (dialoguePanel != null && dialoguePanel.activeSelf)
         {
             dialoguePanel.SetActive(false);
-            if (MasterManager.Dialogue != null)
-            {
-                MasterManager.Dialogue.EndDialogue(); // 대화 종료 로직 강제 호출
-            }
+            MasterManager.Dialogue.EndDialogue();
         }
     }
 }

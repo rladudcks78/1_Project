@@ -43,21 +43,14 @@ public class PlayerInteract : MonoBehaviour
 
     private void PerformInteract()
     {
-        // 1. 현재 프레임에서 마우스가 UI 위에 있는지 체크
-        // Update 내에서 실행하므로 IsPointerOverGameObject()가 정확한 상태를 반환합니다.
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-        {
-            return;
-        }
-
-        // 2. 대화 중이거나 상점이 열려 있다면 월드 클릭 무시
-        if (MasterManager.Dialogue.isDialogueActive || MasterManager.Shop.IsShopActive)
-        {
-            return;
-        }
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+        if (MasterManager.Dialogue.isDialogueActive || MasterManager.Shop.IsShopActive) return;
 
         // 3. 마우스 위치 계산 (Z축은 0으로 고정)
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 screenPos = Input.mousePosition;
+        screenPos.z = Mathf.Abs(Camera.main.transform.position.z);
+
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(screenPos);
         mousePos.z = 0;
 
         // 4. NPC 상호작용 체크
@@ -109,22 +102,46 @@ public class PlayerInteract : MonoBehaviour
 
     private void TryHarvest(Vector3 pos)
     {
-        RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero);
+        // 1. 범위 내의 모든 콜라이더를 다 가져옵니다.
+        Collider2D[] hits = Physics2D.OverlapCircleAll(pos, 0.25f);
 
-        if (hit.collider != null && hit.collider.TryGetComponent<Crop>(out Crop crop))
+        if (hits.Length == 0) return;
+
+        Crop closestCrop = null;
+        float closestDistance = float.MaxValue;
+
+        // 2. 검색된 것들 중 마우스 클릭 지점과 가장 가까운 '작물'을 찾습니다.
+        foreach (var hit in hits)
         {
-            if (crop.CanHarvest())
+            if (hit.TryGetComponent<Crop>(out Crop crop))
             {
-                ItemData harvestedItem = crop.GetHarvestItem();
+                float distance = Vector2.Distance(pos, hit.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestCrop = crop;
+                }
+            }
+        }
 
+        // 3. 가장 가까운 작물이 있고 수확 가능하다면 진행
+        if (closestCrop != null)
+        {
+            if (closestCrop.CanHarvest())
+            {
+                ItemData harvestedItem = closestCrop.GetHarvestItem();
                 if (harvestedItem != null)
                 {
                     MasterManager.Inventory.AddItem(harvestedItem, 1);
-                    MasterManager.Tile.ResetToTilled(hit.transform.position);
-                    Destroy(hit.collider.gameObject);
+                    MasterManager.Tile.ResetToTilled(closestCrop.transform.position);
 
                     Debug.Log($"<color=cyan>{harvestedItem.itemName}</color> 수확 완료!");
+                    Destroy(closestCrop.gameObject);
                 }
+            }
+            else
+            {
+                Debug.Log("아직 다 자라지 않았습니다.");
             }
         }
     }
@@ -132,5 +149,15 @@ public class PlayerInteract : MonoBehaviour
     public void ChangeVisual(string toolName)
     {
         if (_visualizer != null) _visualizer.UpdateVisual(toolName);
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (Camera.main == null) return;
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, Mathf.Abs(Camera.main.transform.position.z)));
+        mousePos.z = 0;
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(mousePos, 0.25f); // 수확 판정 범위 시각화
     }
 }
