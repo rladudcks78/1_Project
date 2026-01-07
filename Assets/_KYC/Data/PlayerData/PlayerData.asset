@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b3d92b2affcc57468ca9641da50137d, type: 3}
+  m_Name: PlayerData
+  m_EditorClassIdentifier: 
+  playerName: Player
+  gold: 9080
+  moveSpeed: 5
+  inventorySlots:
+  - item: {fileID: 11400000, guid: 120dec2ec447f074fb28d7c91f4d0685, type: 2}
+    count: 1
+  - item: {fileID: 11400000, guid: b853b4274d4155045811a31d3367ffef, type: 2}
+    count: 10
+  - item: {fileID: 0}
+    count: 0
+  - item: {fileID: 11400000, guid: b853b4274d4155045811a31d3367ffef, type: 2}
+    count: 10
+  - item: {fileID: 11400000, guid: e103b7ddea6aaae4f80a42c371ff799f, type: 2}
+    count: 10
+  - item: {fileID: 11400000, guid: 6025a8c75c1936342a9e83c709671601, type: 2}
+    count: 1
+  - item: {fileID: 11400000, guid: 580cddab75332b04d9c895418709ce49, type: 2}
+    count: 1
+  maxSlotCount: 28
