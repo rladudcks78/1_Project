@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.InputSystem; //
 
 public class UIManager : MonoBehaviour
@@ -8,9 +9,16 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject dialoguePanel; //
     [SerializeField] private GameObject shopPanel;
 
+    [Header("Drag & Drop References")]
+    [SerializeField] private Image ghostIconImage;
+
+    public Image GhostIconImage => ghostIconImage;
+    public RectTransform GhostRect => ghostIconImage != null ? ghostIconImage.rectTransform : null;
+
     public void Init()
     {
         CloseAllPanels(); //
+        if (ghostIconImage != null) ghostIconImage.gameObject.SetActive(false);
         Debug.Log("UIManager: UI 시스템 초기화 완료."); //
     }
 

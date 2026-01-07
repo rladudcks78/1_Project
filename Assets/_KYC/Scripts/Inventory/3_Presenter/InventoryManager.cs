@@ -26,6 +26,15 @@ public class InventoryManager : MonoBehaviour
 
     public void Init()
     {
+        var player = MasterManager.Data.Player;
+
+        // [수정] 인벤토리가 항상 28칸을 유지하도록 빈 슬롯(null) 데이터로 미리 채움
+        // 이 작업이 있어야 비어있는 7~27번 슬롯으로 드래그가 가능해집니다.
+        while (player.inventorySlots.Count < 28)
+        {
+            player.inventorySlots.Add(new InventorySlot(null, 0));
+        }
+
         inventoryView.InitView();
         inventoryView.OnSlotClicked += HandleSlotClick;
         RefreshInventory();
@@ -33,7 +42,7 @@ public class InventoryManager : MonoBehaviour
         // 게임 시작 시 기본적으로 0번 슬롯 선택 상태로 시작
         SelectSlot(0);
 
-        Debug.Log("InventoryManager: InputSystem 기반 시스템 초기화 성공.");
+        Debug.Log("InventoryManager: 28칸 전체 인벤토리 시스템 초기화 완료.");
     }
 
     private void Update()
@@ -153,5 +162,33 @@ public class InventoryManager : MonoBehaviour
     {
         // 이미 만들어두신 SelectedItem 프로퍼티를 활용하여 중복 로직을 방지합니다. (유지보수성 향상)
         return SelectedItem;
+    }
+
+    public void SwapItems(int fromIndex, int toIndex)
+    {
+        var playerModel = MasterManager.Data.Player;
+        var slots = playerModel.inventorySlots;
+
+        // [수정] 리스트의 Count가 아닌, 고정된 인벤토리 크기(28)를 기준으로 체크
+        if (fromIndex < 0 || fromIndex >= 28 || toIndex < 0 || toIndex >= 28) return;
+        if (fromIndex == toIndex) return;
+
+        // 데이터 교체 (비어있는 칸이어도 null 데이터가 들어있으므로 정상 작동함)
+        var temp = slots[fromIndex];
+        slots[fromIndex] = slots[toIndex];
+        slots[toIndex] = temp;
+
+        Debug.Log($"[Inventory] 슬롯 교체 완료: {fromIndex} <-> {toIndex}");
+
+        RefreshInventory();
+        SelectSlot(_selectedSlotIndex);
+    }
+
+    // 특정 슬롯의 아이템 데이터를 가져오는 도우미 함수 (드래그 시작 시 체크용)
+    public ItemData GetItemInSlot(int index)
+    {
+        var slots = MasterManager.Data.Player.inventorySlots;
+        if (index >= 0 && index < slots.Count) return slots[index].item;
+        return null;
     }
 }

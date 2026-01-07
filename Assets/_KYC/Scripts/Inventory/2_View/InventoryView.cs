@@ -10,13 +10,16 @@ public class InventoryView : MonoBehaviour
 
     public void InitView()
     {
-        // Grid 자식들에 있는 모든 SlotUI를 배열로 가져옵니다.
+        // Grid의 자식들로부터 SlotUI를 다 가져옵니다.
         uiSlots = slotGrid.GetComponentsInChildren<InventorySlotUI>();
 
         for (int i = 0; i < uiSlots.Length; i++)
         {
             int index = i;
-            // 버튼 클릭 이벤트를 Presenter로 전달합니다.
+
+            // [중요] 각 슬롯 UI에 인덱스를 직접 대입해줍니다.
+            uiSlots[i].slotIndex = index;
+
             uiSlots[i].SlotButton.onClick.RemoveAllListeners();
             uiSlots[i].SlotButton.onClick.AddListener(() => OnSlotClicked?.Invoke(index));
         }
