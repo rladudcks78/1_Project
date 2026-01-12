@@ -6,7 +6,7 @@ public class InventoryView : MonoBehaviour
     [SerializeField] private Transform slotGrid;
     private InventorySlotUI[] uiSlots;
 
-    public event Action<int> OnSlotClicked;
+    //public event Action<int> OnSlotClicked;
 
     public void InitView()
     {
@@ -19,15 +19,12 @@ public class InventoryView : MonoBehaviour
 
             // [중요] 각 슬롯 UI에 인덱스를 직접 대입해줍니다.
             uiSlots[i].slotIndex = index;
-
-            uiSlots[i].SlotButton.onClick.RemoveAllListeners();
-            uiSlots[i].SlotButton.onClick.AddListener(() => OnSlotClicked?.Invoke(index));
         }
     }
 
     public void RenderSlot(int index, Sprite icon, int count)
     {
-        if (index < uiSlots.Length)
+        if (uiSlots != null && index < uiSlots.Length)
         {
             uiSlots[index].UpdateSlot(icon, count);
         }

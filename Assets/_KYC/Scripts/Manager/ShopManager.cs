@@ -95,6 +95,34 @@ public class ShopManager : MonoBehaviour
         Debug.Log($"{item.itemName} 설명 표시 중");
     }
 
+    public void SellItem(ItemData item, int amount)
+    {
+        // 1. 방어 코드: 데이터가 유효한지 체크
+        if (item == null || MasterManager.Data == null) return;
+
+        // 2. 판매 총액 계산
+        int totalGold = item.sellPrice * amount;
+
+        // 3. 인벤토리에서 아이템 제거 (InventoryManager에 RemoveItem이 구현되어 있어야 함)
+        // 만약 RemoveItem이 없다면 인벤토리 로직에 맞춰 수정이 필요합니다.
+        bool success = MasterManager.Inventory.RemoveItem(item, amount);
+
+        if (success)
+        {
+            // 4. 데이터 매니저를 통해 플레이어 골드 증가
+            MasterManager.Data.AddGold(totalGold);
+
+            // 5. UI 갱신 (보유 금액 텍스트 등)
+            UpdateGoldUI();
+
+            Debug.Log($"[Shop] {item.itemName} {amount}개 판매 완료. +{totalGold}G");
+        }
+        else
+        {
+            Debug.LogError("[Shop] 인벤토리에서 아이템 제거에 실패했습니다.");
+        }
+    }
+
     public void SetShopInactive()
     {
         IsShopActive = false;

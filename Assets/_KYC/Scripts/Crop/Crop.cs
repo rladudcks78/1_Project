@@ -41,5 +41,19 @@ public class Crop : MonoBehaviour
     // 수확 가능한지 확인하는 메서드
     public bool CanHarvest() => currentStage >= data.growthSprites.Length - 1;
 
-    public ItemData GetHarvestItem() => data.harvestItem;
+    public ItemData GetHarvestItem()
+    {
+        if (data == null)
+        {
+            Debug.LogError("Crop: 데이터(data)가 비어있습니다!");
+            return null;
+        }
+
+        if (data.harvestItem == null)
+        {
+            Debug.LogError($"Crop: {data.itemName}의 Harvest Item이 인스펙터에서 설정되지 않았습니다!");
+        }
+
+        return data.harvestItem;
+    }
 }

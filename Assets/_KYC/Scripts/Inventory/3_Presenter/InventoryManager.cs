@@ -28,21 +28,23 @@ public class InventoryManager : MonoBehaviour
     {
         var player = MasterManager.Data.Player;
 
-        // [수정] 인벤토리가 항상 28칸을 유지하도록 빈 슬롯(null) 데이터로 미리 채움
-        // 이 작업이 있어야 비어있는 7~27번 슬롯으로 드래그가 가능해집니다.
+        // 인벤토리가 항상 28칸을 유지하도록 빈 슬롯 데이터로 미리 채움
         while (player.inventorySlots.Count < 28)
         {
             player.inventorySlots.Add(new InventorySlot(null, 0));
         }
 
         inventoryView.InitView();
-        inventoryView.OnSlotClicked += HandleSlotClick;
+
+        // [제거] inventoryView.OnSlotClicked += HandleSlotClick; 
+        // 이제 버튼이 없으므로 View에서 이벤트를 쏴주지 않습니다.
+
         RefreshInventory();
 
-        // 게임 시작 시 기본적으로 0번 슬롯 선택 상태로 시작
+        // 기본 0번 슬롯 선택
         SelectSlot(0);
 
-        Debug.Log("InventoryManager: 28칸 전체 인벤토리 시스템 초기화 완료.");
+        Debug.Log("InventoryManager: 버튼 없는 인벤토리 시스템 초기화 완료.");
     }
 
     private void Update()
@@ -110,37 +112,47 @@ public class InventoryManager : MonoBehaviour
     {
         var slots = MasterManager.Data.Player.inventorySlots;
 
-        // 메인 인벤토리(28칸)와 핫바(7칸) 갱신
         for (int i = 0; i < 28; i++)
         {
+            // 1. 데이터가 있는지 로그로 먼저 확인
+            if (i < slots.Count && slots[i].item != null)
+            {
+                Debug.Log($"슬롯 {i}: {slots[i].item.itemName} 있음, 아이콘: {slots[i].item.icon.name}");
+            }
+
             Sprite icon = (i < slots.Count && slots[i].item != null) ? slots[i].item.icon : null;
             int count = (i < slots.Count) ? slots[i].count : 0;
 
-            inventoryView.RenderSlot(i, icon, count);
-            if (i < 7) hotbarView.RenderSlot(i, icon);
+            inventoryView.RenderSlot(i, icon, count); //
+            if (i < 7) hotbarView.RenderSlot(i, icon); //
         }
     }
 
-    public void AddItem(ItemData item, int count)
+    public void AddItem(ItemData item, int amount)
     {
-        if (MasterManager.Data.Player.AddItem(item, count))
+        // 1. 실제 데이터 계산은 PlayerData에게 시킵니다.
+        bool success = MasterManager.Data.Player.AddItem(item, amount);
+
+        // 2. 데이터 추가에 성공했다면 UI를 새로고침합니다.
+        if (success)
         {
             RefreshInventory();
+            Debug.Log($"{item.itemName} 추가 성공! UI를 갱신합니다.");
         }
     }
 
-    private void HandleSlotClick(int index)
-    {
-        var playerModel = MasterManager.Data.Player;
-        if (index >= playerModel.inventorySlots.Count) return;
+    //private void HandleSlotClick(int index)
+    //{
+    //    var playerModel = MasterManager.Data.Player;
+    //    if (index >= playerModel.inventorySlots.Count) return;
 
-        var slot = playerModel.inventorySlots[index];
-        if (slot.item != null)
-        {
-            slot.item.Use();
-            RefreshInventory();
-        }
-    }
+    //    var slot = playerModel.inventorySlots[index];
+    //    if (slot.item != null)
+    //    {
+    //        slot.item.Use();
+    //        RefreshInventory();
+    //    }
+    //}
 
     public void SelectSlot(int index)
     {
@@ -182,6 +194,41 @@ public class InventoryManager : MonoBehaviour
 
         RefreshInventory();
         SelectSlot(_selectedSlotIndex);
+    }
+
+    public bool RemoveItem(ItemData item, int amount)
+    {
+        // 1. 실제 데이터가 저장된 Player의 inventorySlots에 접근합니다.
+        var slots = MasterManager.Data.Player.inventorySlots;
+
+        // 2. 해당 아이템이 들어있는 '첫 번째' 슬롯을 찾습니다. (중첩 가능 아이템 고려)
+        // 람다식을 사용하여 아이템 데이터(ScriptableObject)가 일치하는 슬롯을 검색합니다.
+        var targetSlot = slots.Find(slot => slot.item == item);
+
+        // 3. 슬롯을 찾았고, 보유 수량이 제거하려는 수량보다 많거나 같은지 확인합니다.
+        if (targetSlot != null && targetSlot.count >= amount)
+        {
+            // 4. 수량 차감
+            targetSlot.count -= amount;
+
+            // 5. 수량이 0이 되면 슬롯 데이터 초기화
+            if (targetSlot.count <= 0)
+            {
+                // [주의] InventorySlot 클래스에 item = null; count = 0; 로직이 포함되어 있어야 합니다.
+                targetSlot.item = null;
+                targetSlot.count = 0;
+            }
+
+            // 6. 변화가 생겼으니 UI를 새로고침합니다. (기존에 구현된 함수 활용)
+            RefreshInventory();
+
+            Debug.Log($"[Inventory] {item.itemName} {amount}개 제거 완료.");
+            return true;
+        }
+
+        // 아이템이 없거나 수량이 부족한 경우
+        Debug.LogWarning($"[Inventory] {item.itemName} 제거 실패: 수량 부족 또는 아이템 없음.");
+        return false;
     }
 
     // 특정 슬롯의 아이템 데이터를 가져오는 도우미 함수 (드래그 시작 시 체크용)

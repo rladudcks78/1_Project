@@ -20,7 +20,7 @@ MonoBehaviour:
   buyPrice: 10
   sellPrice: 0
   maxStack: 99
-  growthTimePerStage: 10
+  growthTimePerStage: 1
   growthSprites:
   - {fileID: 21300088, guid: 2700e06d970d112489ff23cfb58c3f78, type: 3}
   harvestItem: {fileID: 11400000, guid: e103b7ddea6aaae4f80a42c371ff799f, type: 2}

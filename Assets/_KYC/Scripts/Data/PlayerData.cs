@@ -16,23 +16,26 @@ public class PlayerData : ScriptableObject
 
     public bool AddItem(ItemData item, int count)
     {
-        // 1. 이미 인벤토리에 같은 아이템이 있는지 확인
+        // 1. 같은 아이템이 있는지 확인 (기존 로직 유지)
         InventorySlot existingSlot = inventorySlots.Find(slot => slot.item == item);
-
         if (existingSlot != null)
         {
             existingSlot.count += count;
             return true;
         }
 
-        // 2. 새로운 아이템이라면 빈 슬롯이 있는지 확인
-        if (inventorySlots.Count < maxSlotCount)
+        // 2. [수정] 빈 슬롯(item이 null인 곳)을 찾아서 데이터만 채워넣기
+        for (int i = 0; i < inventorySlots.Count; i++)
         {
-            inventorySlots.Add(new InventorySlot(item, count));
-            return true;
+            if (inventorySlots[i].item == null)
+            {
+                inventorySlots[i].item = item;
+                inventorySlots[i].count = count;
+                return true; // 빈 자리에 채웠으므로 성공 반환
+            }
         }
 
-        Debug.LogWarning("인벤토리가 가득 찼습니다!");
+        Debug.LogWarning("모든 슬롯이 아이템으로 가득 찼습니다!");
         return false;
     }
 

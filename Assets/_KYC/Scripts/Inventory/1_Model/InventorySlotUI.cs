@@ -3,14 +3,11 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InventorySlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class InventorySlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     [Header("UI References")]
     [SerializeField] private Image itemIcon;    // 자식 Item(button)의 Image 컴포넌트
     [SerializeField] private TextMeshProUGUI countText; // 자식 CountText(TMP)
-    [SerializeField] private Button itemButton; // 자식 Item(button) 그 자체
-
-    public Button SlotButton => itemButton;
 
     [HideInInspector] public int slotIndex;
 
@@ -34,6 +31,8 @@ public class InventorySlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (eventData.button != PointerEventData.InputButton.Left) return;
+
         // 1. MasterManager의 UIManager를 통해 고스트 아이콘 참조
         var ui = MasterManager.UI;
         if (ui.GhostIconImage == null) return;
@@ -75,6 +74,34 @@ public class InventorySlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             if (targetSlot != null && targetSlot != this)
             {
                 MasterManager.Inventory.SwapItems(this.slotIndex, targetSlot.slotIndex);
+            }
+        }
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        // 1. 데이터 매니저를 통해 실제 슬롯 데이터 확인
+        var player = MasterManager.Data.Player;
+        if (slotIndex < 0 || slotIndex >= player.inventorySlots.Count) return;
+
+        var slotData = player.inventorySlots[slotIndex];
+        if (slotData.item == null) return;
+
+        // 2. 마우스 우클릭인지 확인
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            // 3. 상점이 열려있는지 UIManager에게 물어봄
+            if (MasterManager.UI.IsShopOpen)
+            {
+                // 판매 팝업 호출 (UIManager 경유)
+                MasterManager.UI.ShowSellPopup(slotData.item, slotData.count);
+                Debug.Log($"[Shop] {slotData.item.itemName} 판매 팝업 오픈");
+            }
+            else
+            {
+                // 상점이 닫혀있으면 일반 사용
+                slotData.item.Use();
+                MasterManager.Inventory.RefreshInventory();
             }
         }
     }
