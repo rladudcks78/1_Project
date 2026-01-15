@@ -51,24 +51,28 @@ public class MasterManager : MonoBehaviour
 
     private void Awake()
     {
-        // 1. [팩트체크] 유령 인스턴스 파괴
-        // 에디터 메모리에 이름만 남은 유령 인스턴스가 있을 경우를 대비해 null 체크를 강화합니다.
+        // 1. 싱글톤 중복 체크
         if (_instance != null && _instance != this)
         {
-            // 이미 다른 마스터 매니저가 있다면, 새로 생긴 녀석은 조용히 사라집니다.
             Destroy(gameObject);
             return;
         }
-
-        // 2. 인스턴스 확정
         _instance = this;
 
-        // 3. 씬이 바뀌어도 파괴되지 않게 설정 (핵심 기능)
-        // 이 함수가 호출되는 순간, 이 오브젝트는 'DontDestroyOnLoad' 씬으로 이동하며
-        // 일반적인 씬 저장 로직에서 제외됩니다. 여기서 Assertion이 발생할 수 있습니다.
-        DontDestroyOnLoad(gameObject);
+        // 2. [해결 핵심] 부모가 있는 상태에서 DDOL을 하면 에러가 날 수 있습니다.
+        // 최상위 루트 오브젝트로 독립시켜 에러를 방지합니다.
+        if (transform.parent != null)
+        {
+            transform.SetParent(null);
+        }
 
-        // 4. 초기화 실행
+        // 3. [해결 핵심] 실제로 게임이 재생 중일 때만 파괴 방지 설정을 합니다.
+        // 에디터 모드에서의 불필요한 직렬화 간섭을 막아줍니다.
+        if (Application.isPlaying)
+        {
+            DontDestroyOnLoad(gameObject);
+        }
+
         InitAllManagers();
     }
 
