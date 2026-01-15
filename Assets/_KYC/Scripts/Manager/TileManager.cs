@@ -35,9 +35,13 @@ public class TileManager : MonoBehaviour
                 TillGround(gridPos);
                 break;
             case "Seed":
-                // 1. 인자로 받은 데이터가 있으면 그것을 사용, 없으면 테스트용 데이터 사용
                 CropData dataToPlant = (cropData != null) ? cropData : _testCropData;
-                PlantSeed(gridPos, dataToPlant);
+
+                // [핵심] 심기에 실제로 성공했을 때만 인벤토리에서 차감
+                if (PlantSeed(gridPos, dataToPlant))
+                {
+                    MasterManager.Inventory.ConsumeSelectedSlotItem();
+                }
                 break;
             case "None":
                 Debug.Log("맨손 상태");
@@ -65,31 +69,29 @@ public class TileManager : MonoBehaviour
     }
 
     // [수정] CropData를 인자로 받아 실제 오브젝트에 주입합니다.
-    private void PlantSeed(Vector3Int gridPos, CropData data)
+    private bool PlantSeed(Vector3Int gridPos, CropData data)
     {
-        // 방어 코드: 데이터나 프리팹이 없으면 중단
-        if (data == null) { Debug.LogError("심을 작물 데이터가 없습니다!"); return; }
-        if (cropPrefab == null) { Debug.LogError("Crop Prefab이 할당되지 않았습니다!"); return; }
+        if (data == null || cropPrefab == null) return false;
 
         TileBase currentTile = _interactableTilemap.GetTile(gridPos);
 
-        // 개간된 땅 위에서만 심기 가능
+        // 개간된 땅(_tilledTile) 위에서만 심기 가능
         if (currentTile == _tilledTile)
         {
-            // 1. 타일맵 시각 효과 (바닥에 씨앗이 뿌려진 모습)
+            // 타일맵 시각 효과 설정
             _interactableTilemap.SetTile(gridPos, _seedTile);
 
-            // 2. 실제 성장 로직을 담당할 프리팹 소환
+            // 작물 프리팹 생성 및 데이터 주입
             Vector3 worldPos = _interactableTilemap.GetCellCenterWorld(gridPos);
             GameObject go = Instantiate(cropPrefab, worldPos, Quaternion.identity);
 
-            // 3. [핵심] 소환된 Crop 컴포넌트에 데이터 주입
             if (go.TryGetComponent<Crop>(out Crop crop))
             {
                 crop.Init(data);
-                Debug.Log($"{gridPos}에 {data.itemName}을(를) 심었습니다.");
+                return true; // 심기 성공!
             }
         }
+        return false; // 심기 실패 (땅이 개간되지 않았음 등)
     }
 
     public void ResetToTilled(Vector3 worldPos)

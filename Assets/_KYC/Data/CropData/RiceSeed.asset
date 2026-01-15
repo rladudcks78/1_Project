@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 28648a24158097844a25bb78a931eb92, type: 3}
-  m_Name: PeanutSeed
+  m_Name: RiceSeed
   m_EditorClassIdentifier: 
-  itemID: 201
-  itemName: PeanutSeed
-  description: Its PeanutSeed
-  icon: {fileID: 21300168, guid: 2700e06d970d112489ff23cfb58c3f78, type: 3}
+  itemID: 202
+  itemName: RiceSeed
+  description: Its RiceSeed
+  icon: {fileID: 21300156, guid: 2700e06d970d112489ff23cfb58c3f78, type: 3}
   type: 0
   buyPrice: 10
   sellPrice: 1
   maxStack: 99
   growthTimePerStage: 1
   growthSprites:
-  - {fileID: 21300088, guid: 2700e06d970d112489ff23cfb58c3f78, type: 3}
-  harvestItem: {fileID: 11400000, guid: e103b7ddea6aaae4f80a42c371ff799f, type: 2}
+  - {fileID: 21300052, guid: 2700e06d970d112489ff23cfb58c3f78, type: 3}
+  harvestItem: {fileID: 11400000, guid: fb347f9bd63cb0f41abb5962f5328ff8, type: 2}
   minHarvestCount: 1
   maxHarvestCount: 3

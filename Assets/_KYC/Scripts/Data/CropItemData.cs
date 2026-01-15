@@ -4,7 +4,7 @@ using UnityEngine;
 /// 농작물의 성장 단계 및 정보를 담는 데이터 에셋.
 /// ItemData를 상속받아 인벤토리와 호환되게 합니다.
 /// </summary>
-[CreateAssetMenu(fileName = "New Seed", menuName = "Farm/Item/Seed")]
+[CreateAssetMenu(fileName = "New Seed", menuName = "Farm/Item/Crop")]
 public class CropData : ItemData // ScriptableObject 대신 ItemData 상속
 {
     // [중요] cropName은 부모인 ItemData의 itemName과 중복되므로 삭제하거나 

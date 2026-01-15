@@ -238,4 +238,36 @@ public class InventoryManager : MonoBehaviour
         if (index >= 0 && index < slots.Count) return slots[index].item;
         return null;
     }
+
+    public void ConsumeSelectedSlotItem()
+    {
+        // 1. PlayerData의 슬롯 리스트 참조 (보내주신 PlayerData 구조 활용)
+        var slots = MasterManager.Data.Player.inventorySlots;
+
+        // 2. 현재 선택된 인덱스의 유효성 검사 (방어적 프로그래밍)
+        if (_selectedSlotIndex < 0 || _selectedSlotIndex >= slots.Count) return;
+
+        InventorySlot targetSlot = slots[_selectedSlotIndex];
+
+        // 3. 해당 슬롯에 아이템이 있는지 확인
+        if (targetSlot != null && targetSlot.item != null)
+        {
+            targetSlot.count--; // 수량 1 차감
+
+            // 4. 수량이 다 떨어졌다면 데이터 초기화
+            if (targetSlot.count <= 0)
+            {
+                targetSlot.item = null; // 아이템 정보 삭제
+                targetSlot.count = 0;   // 개수 초기화
+
+                // 아이템이 사라졌으므로 손에 든 도구 비주얼도 갱신
+                SelectSlot(_selectedSlotIndex);
+            }
+
+            // 5. 데이터가 변했으므로 UI 다시 그리기
+            RefreshInventory();
+
+            Debug.Log($"[Inventory] 아이템 소비 완료. 현재 슬롯 상태: {(targetSlot.item != null ? targetSlot.count.ToString() : "Empty")}");
+        }
+    }
 }
